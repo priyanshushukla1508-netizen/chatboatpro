@@ -1,0 +1,31 @@
+# AI Customer Support Chatbot — application.properties TEMPLATE
+# Copy this file and rename it to application.properties
+# NEVER commit application.properties to GitHub!
+
+# Server Configuration
+server.port=8080
+
+# Database Configuration (Supabase/PostgreSQL)
+spring.datasource.url=jdbc:postgresql://YOUR_SUPABASE_HOST:5432/postgres
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_SUPABASE_PASSWORD
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Spring Security / JWT
+jwt.secret=chatboatpro_super_secret_key_1234567890_abcdefg
+jwt.expiration=86400000
+
+# AI Configuration (Groq)
+groq.api.key=YOUR_GROQ_API_KEY_HERE
+groq.model=llama3-8b-8192
+
+# Email (SMTP Gmail)
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=YOUR_EMAIL@gmail.com
+spring.mail.password=YOUR_GMAIL_APP_PASSWORD
+
+# Crawler Configuration
+crawler.output.path=../crawler/output

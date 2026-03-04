@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — ChatBotPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --bg: #0D0E1C;
+            --surface: #161728;
+            --surface-light: #1F213A;
+            --text: #FFFFFF;
+            --text-muted: #B0B3C6;
+            --success: #00E5A0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 0 30px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 40px;
+        }
+
+        .nav-item {
+            padding: 14px 30px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.03);
+            border-right: 3px solid var(--primary);
+        }
+
+        .logout {
+            margin-top: auto;
+            color: #FF4D4D;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .user-info {
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-card h4 {
+            color: var(--text-muted);
+            margin: 0 0 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Generic Table/List */
+        .card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-muted);
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        /* Button */
+        .btn {
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 32px;
+            border-radius: 16px;
+            width: 450px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            outline: none;
+        }
+
+        .code-block {
+            background: #000;
+            padding: 16px;
+            border-radius: 8px;
+            color: var(--accent);
+            font-family: monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="logo">ChatBotPro</div>
+        <div class="nav-item active" onclick="showTab('overview')">Overview</div>
+        <div class="nav-item" onclick="showTab('websites')">My Websites</div>
+        <div class="nav-item" onclick="showTab('inbox')">Live Inbox <span
+                style="background: #FF4D4D; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; margin-left: 5px;">Live</span>
+        </div>
+        <div class="nav-item" onclick="showTab('training')">AI Training (FAQ)</div>
+        <div class="nav-item" onclick="showTab('gaps')">Knowledge Gaps</div>
+        <div class="nav-item" onclick="showTab('integrations')">Integrations</div>
+        <div class="nav-item" onclick="showTab('embed')">Embed Code</div>
+        <div class="nav-item logout" onclick="logout()">Logout</div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h2 id="tab-title">Overview</h2>
+            <div class="user-info" id="user-name">Welcome, User</div>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Websites</h4>
+                    <div class="value" id="stat-sites">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Total Chats</h4>
+                    <div class="value" id="stat-chats">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>FAQs</h4>
+                    <div class="value" id="stat-faqs">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Active Leads</h4>
+                    <div class="value" id="stat-leads">0</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                <div class="card">
+                    <h3>Recent Activity</h3>
+                    <div id="recent-activity-list"
+                        style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Mockup Activity -->
+                        <div
+                            style="display: flex; align-items: center; gap: 12px; font-size: 14px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></div>
+                            <span style="color: var(--text-muted);">New lead from Mumbai:</span> "Looking for Enterprise
+                            plan..."
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="border-color: var(--primary);">
+                    <h3>Knowledge Health</h3>
+                    <div style="margin-top: 20px;">
+                        <div
+                            style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                            <span>AI Confidence</span>
+                            <span>92%</span>
+                        </div>
+                        <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="width: 92%; height: 100%; background: var(--primary); border-radius: 10px;">
+                            </div>
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 15px;">AI answered 45/49
+                            queries successfully today.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Charts -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+                <div class="card">
+                    <h3>Chat Sentiment Analysis</h3>
+                    <div style="height: 250px; margin-top: 20px;">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Resolution Trend</h3>
+                    <div style="height: 250px; margin-top: 20px;">
+                        <canvas id="resolutionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Inbox Tab -->
+        <div id="inbox" class="tab-content">
+            <div style="display: grid; grid-template-columns: 320px 1fr 300px; height: calc(100vh - 120px); gap: 20px;">
+                <!-- Session List -->
+                <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                    <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <h3 style="font-size: 16px;">Active Sessions</h3>
+                    </div>
+                    <div id="active-sessions-list" style="flex: 1; overflow-y: auto;">
+                        <div style="padding: 20px; text-align: center; color: var(--text-muted);">Loading sessions...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                    <div
+                        style="padding: 15px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span id="current-chat-name" style="font-weight: 600;">Select a chat</span>
+                            <div id="current-chat-status" style="font-size: 10px; color: var(--success);"></div>
+                        </div>
+                        <button class="btn btn-sm" id="takeover-btn" style="display: none; background: #FF4D4D;">Take
+                            Control</button>
+                    </div>
+                    <div id="chat-messages-container"
+                        style="flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;">
+                        <div style="text-align: center; margin-top: 100px; color: var(--text-muted);">
+                            <div style="font-size: 40px; margin-bottom: 20px;">💬</div>
+                            Select a session from the left to start monitoring or intervening.
+                        </div>
+                    </div>
+                    <div id="chat-input-area"
+                        style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); display: none;">
+                        <div style="display: flex; gap: 10px; flex-direction: column;">
+                            <div style="display: flex; gap: 15px; font-size: 12px; color: var(--text-muted);">
+                                <label style="cursor: pointer;"><input type="radio" name="msgType" value="reply"
+                                        checked> Public Reply</label>
+                                <label style="cursor: pointer; color: #FFCD29;"><input type="radio" name="msgType"
+                                        value="note"> Internal Note (Hidden)</label>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="admin-input" placeholder="Type message or note...">
+                                <button class="btn" onclick="sendAdminMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Intel (Right Sidebar) -->
+                <div class="card" style="padding: 20px;">
+                    <h3>Session Intel</h3>
+                    <div id="session-intel-content" style="margin-top: 25px;">
+                        <div style="text-align: center; color: var(--text-muted); font-size: 13px;">No data available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Knowledge Gaps Tab -->
+        <div id="gaps" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Unanswered Queries (Knowledge Gaps)</h3>
+                    <button class="btn btn-sm" onclick="loadKnowledgeGaps()">Refresh</button>
+                </div>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">These are real customer
+                    questions that the AI couldn't answer with high confidence. Add them to training to improve.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Query</th>
+                            <th>Asked By</th>
+                            <th>Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gaps-list">
+                        <!-- Dynamic list -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Websites Tab -->
+        <div id="websites" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Manage Websites</h3>
+                    <button class="btn" id="add-site-btn" onclick="openModal('site-modal')">+ Add Website</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Domain</th>
+                            <th>Bot Name</th>
+                            <th>Token</th>
+                            <th>Last Crawled</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="website-list">
+                        <!-- Dynamic list -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- integrations Tab -->
+        <div id="integrations" class="tab-content">
+            <div class="card">
+                <h3>CRM & Integration Hub</h3>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Automatically sync your leads
+                    and chat transcripts to your favorite CRM.</p>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                    <div class="stat-card" style="text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 15px;">🟠</div>
+                        <h4 style="color: var(--text);">HubSpot</h4>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">Sync leads and deals
+                            automatically.</p>
+                        <button class="btn btn-sm" style="width: 100%;"
+                            onclick="alert('HubSpot Integration Coming Soon!')">Connect</button>
+                    </div>
+                    <div class="stat-card" style="text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 15px;">🔴</div>
+                        <h4 style="color: var(--text);">Zoho CRM</h4>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">Push chat transcripts
+                            as notes.</p>
+                        <button class="btn btn-sm" style="width: 100%; background: var(--success);"
+                            onclick="alert('Zoho Integrated (Backend Active)')">Active</button>
+                    </div>
+                    <div class="stat-card" style="text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 15px;">🔵</div>
+                        <h4 style="color: var(--text);">Salesforce</h4>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">Enterprise-grade lead
+                            routing.</p>
+                        <button class="btn btn-sm" style="width: 100%;"
+                            onclick="alert('Salesforce Integration Coming Soon!')">Connect</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Tab -->
+        <div id="training" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Manual Q&A Training</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select id="faq-site-select" onchange="loadFAQs(this.value)" style="width: 200px;"></select>
+                        <button class="btn" onclick="openModal('faq-modal')">+ Add FAQ</button>
+                        <input type="file" id="faq-file-input" accept=".pdf,.txt" style="display: none;"
+                            onchange="handleFileUpload(this)">
+                        <button class="btn" style="background: var(--surface-light); color: var(--text);"
+                            onclick="document.getElementById('faq-file-input').click()">📁 Upload Doc (PDF/TXT)</button>
+                    </div>
+                </div>
+                <div id="upload-status"
+                    style="display: none; padding: 10px; margin-bottom: 20px; border-radius: 8px; background: rgba(108, 99, 255, 0.1); color: var(--primary); font-size: 13px; font-weight: 500;">
+                    ⏳ Processing document with AI... Please wait.
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Answer</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="faq-list">
+                        <!-- Dynamic list -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- AI Suggestions Section -->
+            <div class="card" style="border-color: var(--primary); background: rgba(108, 99, 255, 0.05);">
+                <div class="card-header">
+                    <h3>AI FAQ Suggestions (Automated Training)</h3>
+                    <button class="btn btn-sm" id="scan-btn" onclick="scanChatHistory()">Scan Chat History</button>
+                </div>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">AI analyzes your recent chats
+                    to suggest new questions your customers are asking.</p>
+                <div id="suggestions-list" class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Suggestions cards will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Embed Tab -->
+        <div id="embed" class="tab-content">
+            <div class="card">
+                <h3>Integration Script</h3>
+                <p style="color: var(--text-muted); margin-top: 10px; margin-bottom: 20px;">Copy and paste this code
+                    before the closing &lt;/body&gt; tag of your website.</p>
+                <select id="embed-site-select" onchange="updateEmbedCode(this.value)"
+                    style="margin-bottom: 20px; width: 300px;"></select>
+                <div class="code-block" id="embed-code">
+                    &lt;script src="http://localhost:8080/widget/widget.js" data-bot-id="YOUR_TOKEN"&gt;&lt;/script&gt;
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="site-modal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Website</h3><br>
+            <form id="site-form">
+                <div class="form-group"><label>Website Name</label><input type="text" id="site-name" required
+                        placeholder="e.g. My Online Store"></div>
+                <div class="form-group"><label>Domain URL</label><input type="url" id="site-url" required
+                        placeholder="https://example.com"></div>
+                <div class="form-group"><label>Bot Display Name</label><input type="text" id="bot-name" required
+                        placeholder="e.g. Support Assistant"></div>
+                <div class="form-group"><label>Primary Theme Color</label><input type="color" id="bot-color"
+                        value="#6C63FF"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('site-modal')">Cancel</button>
+                    <button type="submit" class="btn">Create Bot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="faq-modal" class="modal">
+        <div class="modal-content">
+            <h3>Add Manual training</h3><br>
+            <form id="faq-form">
+                <div class="form-group"><label>Question</label><input type="text" id="faq-q" required></div>
+                <div class="form-group"><label>Answer</label><textarea id="faq-a" required
+                        style="width: 100%; height: 100px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; padding: 10px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('faq-modal')">Cancel</button>
+                    <button type="submit" class="btn">Add FAQ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:8080/api/v1";
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = "login.html";
+
+        // Safely load user info from localStorage; fall back to a guest label
+        let userData = null;
+        try { userData = JSON.parse(localStorage.getItem('user')); } catch (e) { userData = null; }
+        const displayName = (userData && (userData.fullName || userData.name || userData.email)) ? (userData.fullName || userData.name || userData.email) : 'Guest';
+        document.getElementById('user-name').textContent = `Welcome, ${displayName}`;
+
+        let currentSessionId = null;
+        let inboxInterval = null;
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+            document.getElementById('tab-title').textContent = id.charAt(0).toUpperCase() + id.slice(1);
+
+            // Cleanup previous intervals
+            if (inboxInterval) clearInterval(inboxInterval);
+
+            if (id === 'overview') loadStats();
+            if (id === 'websites') loadWebsites();
+            if (id === 'training') loadWebsiteSelect('faq-site-select');
+            if (id === 'inbox') {
+                loadWebsiteSelect('inbox-site-select');
+                startInboxPolling();
+            }
+            if (id === 'integrations') {
+                // Future: load integration statuses
+            }
+            if (id === 'gaps') loadKnowledgeGaps();
+            if (id === 'embed') loadWebsiteSelect('embed-site-select');
+        }
+
+        // === LIVE INBOX LOGIC ===
+        async function startInboxPolling() {
+            loadSessions();
+            inboxInterval = setInterval(() => {
+                loadSessions();
+                if (currentSessionId) loadChat(currentSessionId, true);
+            }, 5000);
+        }
+
+        async function loadSessions() {
+            const sites = await apiFetch('/websites');
+            if (!sites || sites.length === 0) return;
+            const siteId = sites[0].id; // For now default to first site
+
+            const sessions = await apiFetch(`/dashboard/sessions/${siteId}`);
+            const list = document.getElementById('active-sessions-list');
+            if (!sessions || sessions.length === 0) {
+                list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted);">No active sessions</div>';
+                return;
+            }
+
+            list.innerHTML = sessions.map(session => {
+                const sid = session.sessionId;
+                const activeClass = currentSessionId === sid ? 'active' : '';
+                const alertStyle = session.needsHuman ? 'border-left: 4px solid #FF4D4D; background: rgba(255, 77, 77, 0.05);' : 'border-bottom: 1px solid rgba(255,255,255,0.02);';
+                const statusBadge = session.needsHuman
+                    ? '<span style="font-size:10px; color:#FF4D4D; font-weight:bold;">⚠️ Needs Human</span>'
+                    : '<span style="font-size:10px; opacity:0.6">AI Handling</span>';
+
+                return `
+                    <div class="nav-item ${activeClass}" 
+                         style="padding:15px 20px; justify-content: space-between; ${alertStyle}"
+                         onclick="loadChat('${sid}')">
+                        <div style="display:flex; flex-direction:column; gap:4px">
+                            <span style="font-size:13px; font-weight:600">Visitor ${sid.substring(0, 5)}</span>
+                            ${statusBadge}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadChat(sessionId, isPolling = false) {
+            currentSessionId = sessionId;
+            const messages = await apiFetch(`/dashboard/chat/${sessionId}`);
+            const container = document.getElementById('chat-messages-container');
+            const nameEl = document.getElementById('current-chat-name');
+            const statusEl = document.getElementById('current-chat-status');
+            const inputArea = document.getElementById('chat-input-area');
+            const takeoverBtn = document.getElementById('takeover-btn');
+
+            nameEl.textContent = `Visitor ${sessionId.substring(0, 8)}`;
+            statusEl.textContent = "● Monitoring Live";
+            inputArea.style.display = 'block';
+            takeoverBtn.style.display = 'block';
+
+            const html = messages.map(m => {
+                const isInternal = m.senderType === 'INTERNAL_NOTE';
+                const align = m.senderType === 'VISITOR' ? 'flex-start' : 'flex-end';
+                let bgClass = '';
+                if (m.senderType === 'VISITOR') bgClass = 'var(--surface-light)';
+                else if (m.senderType === 'ADMIN') bgClass = 'var(--primary)';
+                else if (isInternal) bgClass = 'rgba(255, 205, 41, 0.2)'; // Yellow tint
+                else bgClass = 'rgba(255,255,255,0.05)'; // BOT
+
+                const bradius = m.senderType === 'VISITOR' ? 'left' : 'right';
+                const borderS = isInternal ? 'border: 1px dashed #FFCD29;' : '';
+
+                return `
+                    <div style="align-self: ${align}; max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 14px;
+                                background: ${bgClass}; ${borderS} border-bottom-${bradius}-radius: 2px;">
+                        <div style="font-size: 10px; margin-bottom: 5px; opacity: 0.6; color: ${isInternal ? '#FFCD29' : 'inherit'}">
+                            ${isInternal ? '🔒 INTERNAL NOTE' : m.senderType}
+                        </div>
+                        ${m.message}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+            if (!isPolling) container.scrollTop = container.scrollHeight;
+
+            // Load Intel
+            const intel = document.getElementById('session-intel-content');
+            intel.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:15px">
+                    <div class="stat-card" style="padding:15px; background:rgba(255,255,255,0.02)">
+                        <h4 style="font-size:11px">Session ID</h4>
+                        <div style="font-size:12px; font-family:monospace">${sessionId}</div>
+                    </div>
+                    <div class="stat-card" style="padding:15px; background:rgba(0,229,160,0.05)">
+                        <h4 style="font-size:11px; color:var(--success)">Potential Lead</h4>
+                        <div style="font-size:12px">Identified as: <strong>High Value</strong></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function sendAdminMessage() {
+            const input = document.getElementById('admin-input');
+            const text = input.value.trim();
+            if (!text || !currentSessionId) return;
+
+            const isNote = document.querySelector('input[name="msgType"]:checked').value === 'note';
+
+            const sites = await apiFetch('/websites');
+            const siteId = sites[0].id;
+
+            const endpoint = isNote ? '/dashboard/chat/note' : '/dashboard/chat/send';
+            const payload = { sessionId: currentSessionId, websiteId: siteId.toString() };
+            if (isNote) payload.note = text; else payload.message = text;
+
+            await apiFetch(endpoint, 'POST', payload);
+
+            input.value = '';
+            loadChat(currentSessionId);
+        }
+
+        // === KNOWLEDGE GAPS LOGIC ===
+        async function loadKnowledgeGaps() {
+            const sites = await apiFetch('/websites');
+            if (!sites || sites.length === 0) return;
+            const siteId = sites[0].id;
+
+            const gaps = await apiFetch(`/dashboard/gaps/${siteId}`);
+            const list = document.getElementById('gaps-list');
+
+            if (!gaps || gaps.length === 0) {
+                list.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted)">No knowledge gaps found. Your AI is doing great!</td></tr>';
+                return;
+            }
+
+            list.innerHTML = gaps.map(g => `
+                <tr>
+                    <td style="font-weight:600">${g.question}</td>
+                    <td>Visitor ${g.id}</td>
+                    <td>${new Date(g.createdAt).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm" onclick="trainFromGap(${g.id}, '${g.question.replace(/'/g, "\\'")}')">Train AI</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function trainFromGap(gapId, question) {
+            const answer = prompt(`Train AI for: "${question}"\n\nEnter the correct answer:`);
+            if (!answer) return;
+
+            await apiFetch(`/dashboard/gaps/${gapId}/resolve`, 'POST', { answer });
+
+            // Also add as FAQ
+            const sites = await apiFetch('/websites');
+            await apiFetch('/faqs', 'POST', {
+                websiteId: sites[0].id,
+                question: question,
+                answer: answer
+            });
+
+            loadKnowledgeGaps();
+            alert("AI Trained successfully!");
+        }
+
+        async function apiFetch(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+            try {
+                const res = await fetch(`${API_BASE}${endpoint}`, options);
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.clear();
+                    window.location.href = "login.html";
+                    return null;
+                }
+                return res.ok ? (method === 'DELETE' ? null : res.json()) : null;
+            } catch (err) {
+                console.error("API error:", err);
+                return null;
+            }
+        }
+
+        async function loadStats() {
+            const data = await apiFetch('/dashboard/stats');
+            if (data) {
+                document.getElementById('stat-sites').textContent = data.totalWebsites;
+                document.getElementById('stat-chats').textContent = data.totalChats;
+                document.getElementById('stat-faqs').textContent = data.totalFAQs;
+                document.getElementById('stat-leads').textContent = data.totalLeads;
+
+                // Enforce one bot limit
+                const addBtn = document.getElementById('add-site-btn');
+                if (data.totalWebsites >= 1) {
+                    addBtn.disabled = true;
+                    addBtn.style.opacity = '0.5';
+                    addBtn.title = "You have already created a chat bot";
+                }
+            }
+        }
+
+        async function loadWebsites() {
+            const sites = await apiFetch('/websites');
+            const tbody = document.getElementById('website-list');
+            if (!sites || sites.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-muted)">No websites added yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = sites.map(s => `
+                <tr>
+                    <td>${s.name}</td>
+                    <td>${s.domain}</td>
+                    <td>${s.botName || '—'}</td>
+                    <td><code style="color:var(--text-muted)">${s.botToken || '—'}</code></td>
+                    <td>${s.lastCrawledAt ? new Date(s.lastCrawledAt).toLocaleString() : 'Never'}</td>
+                    <td><span style="color: var(--success)">${s.active === false ? 'Inactive' : 'Active'}</span></td>
+                    <td><button class="btn btn-sm" onclick="triggerCrawl(${s.id})">Crawl Now</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function triggerCrawl(id) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Crawling...';
+            await apiFetch(`/websites/${id}/crawl`, 'POST');
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = 'Crawl Now';
+                loadWebsites();
+            }, 5000);
+        }
+
+        async function loadWebsiteSelect(selectId) {
+            const sites = await apiFetch('/websites');
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            select.innerHTML = sites.map(s => `<option value="${s.id}" data-token="${s.botToken}">${s.name}</option>`).join('');
+            if (sites.length > 0) {
+                if (selectId === 'faq-site-select') {
+                    loadFAQs(sites[0].id);
+                    loadSuggestions(sites[0].id);
+                }
+                if (selectId === 'embed-site-select') updateEmbedCode(sites[0].id);
+            }
+        }
+
+        async function loadFAQs(siteId) {
+            const faqs = await apiFetch(`/faqs/website/${siteId}`);
+            const tbody = document.getElementById('faq-list');
+            tbody.innerHTML = faqs.map(f => `
+                <tr>
+                    <td>${f.question}</td>
+                    <td>${f.answer}</td>
+                    <td><button class="btn btn-sm" style="background: #FF4D4D" onclick="deleteFAQ(${f.id}, ${siteId})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteFAQ(id, siteId) {
+            await apiFetch(`/faqs/${id}`, 'DELETE');
+            loadFAQs(siteId);
+        }
+
+        async function loadSuggestions(siteId) {
+            const suggestions = await apiFetch(`/faqs/suggestions/${siteId}`);
+            const list = document.getElementById('suggestions-list');
+            if (!suggestions || suggestions.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted)">No new suggestions. Click Scan to search chat history.</p>';
+                return;
+            }
+            list.innerHTML = suggestions.map(s => `
+                <div class="stat-card" style="background: var(--surface-light)">
+                    <h4 style="color: var(--primary)">Suggested Question</h4>
+                    <p style="font-size: 14px; margin-bottom: 10px;">${s.question}</p>
+                    <h4 style="color: var(--success)">AI-Drafted Answer</h4>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">${s.answer}</p>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-sm" onclick="approveSuggestion(${s.id}, ${siteId})">Approve</button>
+                        <button class="btn btn-sm btn-outline" style="border-color: #FF4D4D; color: #FF4D4D" onclick="rejectSuggestion(${s.id}, ${siteId})">Dismiss</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function scanChatHistory() {
+            const siteId = document.getElementById('faq-site-select').value;
+            const btn = document.getElementById('scan-btn');
+            btn.disabled = true;
+            btn.textContent = 'Scanning...';
+            await apiFetch(`/faqs/suggestions/${siteId}/scan`, 'POST');
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = 'Scan Chat History';
+                loadSuggestions(siteId);
+            }, 3000);
+        }
+
+        async function approveSuggestion(id, siteId) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Approving...';
+            await apiFetch(`/faqs/suggestions/${id}/approve`, 'POST');
+            loadFAQs(siteId);
+            loadSuggestions(siteId);
+        }
+
+        async function rejectSuggestion(id, siteId) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Dismissing...';
+            await apiFetch(`/faqs/suggestions/${id}/reject`, 'POST');
+            loadSuggestions(siteId);
+        }
+
+        function updateEmbedCode(siteId) {
+            const select = document.getElementById('embed-site-select');
+            const token = select.options[select.selectedIndex].getAttribute('data-token');
+            document.getElementById('embed-code').textContent =
+                `<script src="http://localhost:3000/widget/widget.js" data-bot-id="${token}"><\/script>`;
+        }
+
+        document.getElementById('site-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const body = {
+                name: document.getElementById('site-name').value,
+                domain: document.getElementById('site-url').value,
+                botName: document.getElementById('bot-name').value,
+                primaryColor: document.getElementById('bot-color').value,
+                welcomeMessage: "Hi! How can I help you today?"
+            };
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = "Creating...";
+
+            try {
+                const res = await apiFetch('/websites', 'POST', body);
+                if (!res) {
+                    alert("You have already created a chat bot. Only 1 bot is allowed per account.");
+                } else {
+                    closeModal('site-modal');
+                    loadWebsites();
+                    loadStats();
+                }
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Create Bot";
+            }
+        }
+
+        async function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const siteId = document.getElementById('faq-site-select').value;
+            if (!siteId) {
+                alert("Please select a website first");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.style.display = 'block';
+
+            try {
+                const response = await fetch(`${API_BASE}/faqs/upload/${siteId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const count = await response.json();
+                    alert(`Success! ${count} FAQs extracted from document.`);
+                    loadFAQs(siteId);
+                    loadStats();
+                } else {
+                    const err = await response.json();
+                    alert("Upload failed: " + (err.message || "Unknown error"));
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                alert("Connection error. Check backend logs.");
+            } finally {
+                statusDiv.style.display = 'none';
+                input.value = ""; // Reset
+            }
+        }
+
+        document.getElementById('faq-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const siteId = document.getElementById('faq-site-select').value;
+            const body = {
+                websiteId: siteId,
+                question: document.getElementById('faq-q').value,
+                answer: document.getElementById('faq-a').value
+            };
+            await apiFetch('/faqs', 'POST', body);
+            closeModal('faq-modal');
+            loadFAQs(siteId);
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function logout() { localStorage.clear(); window.location.href = "login.html"; }
+
+        async function initCharts() {
+            const ctxSent = document.getElementById('sentimentChart');
+            const ctxRes = document.getElementById('resolutionChart');
+            if (ctxSent) {
+                new Chart(ctxSent.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Happy', 'Neutral', 'Frustrated'],
+                        datasets: [{
+                            data: [72, 18, 10],
+                            backgroundColor: ['#00E5A0', '#6C63FF', '#FF4D4D'],
+                            borderColor: 'transparent'
+                        }]
+                    },
+                    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#B0B3C6' } } } }
+                });
+            }
+            if (ctxRes) {
+                new Chart(ctxRes.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Resolution %',
+                            data: [82, 85, 88, 86, 92, 95, 94],
+                            borderColor: '#6C63FF',
+                            tension: 0.4,
+                            fill: true,
+                            backgroundColor: 'rgba(108, 99, 255, 0.1)'
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B0B3C6' } },
+                            x: { grid: { display: false }, ticks: { color: '#B0B3C6' } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+        loadStats();
+        setTimeout(initCharts, 1000);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBotPro — Conversation Heatmap & Analytics</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #030407;
+            --surface: #0A0C12;
+            --emerald: #00F5A0;
+            --cyan: #00D1FF;
+            --text: #FFF;
+            --muted: #8E91A1;
+            --border: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk';
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk';
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .stat-value.hot {
+            color: #FF6B6B;
+        }
+
+        .stat-value.warm {
+            color: #FFB347;
+        }
+
+        .stat-value.emerald {
+            color: var(--emerald);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .chart-card h3 {
+            font-family: 'Space Grotesk';
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .chart-card p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        /* Heatmap Table */
+        .heatmap-section {
+            margin-bottom: 40px;
+        }
+
+        .heatmap-section h2 {
+            font-family: 'Space Grotesk';
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .heatmap-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 8px;
+        }
+
+        .heatmap-rank {
+            font-family: 'JetBrains Mono';
+            font-size: 13px;
+            color: var(--muted);
+            width: 28px;
+        }
+
+        .heatmap-question {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .heatmap-bar-wrap {
+            width: 200px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .heatmap-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: var(--emerald);
+            box-shadow: 0 0 10px var(--emerald);
+        }
+
+        .heatmap-count {
+            font-family: 'JetBrains Mono';
+            font-size: 13px;
+            color: var(--emerald);
+            width: 60px;
+            text-align: right;
+        }
+
+        /* Lead Table */
+        .leads-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leads-table th {
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leads-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .tier-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .tier-HOT {
+            background: rgba(255, 107, 107, 0.15);
+            color: #FF6B6B;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .tier-WARM {
+            background: rgba(255, 179, 71, 0.15);
+            color: #FFB347;
+            border: 1px solid rgba(255, 179, 71, 0.3);
+        }
+
+        .tier-COLD {
+            background: rgba(142, 145, 161, 0.1);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔥 Conversation Heatmap</h1>
+    <p class="subtitle">Live analytics — which questions drive conversions, where do visitors drop off, and who are your
+        hottest leads.</p>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-label">Total Conversations</div>
+            <div class="stat-value emerald" id="total-convos">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🔥 Hot Leads</div>
+            <div class="stat-value hot" id="hot-leads">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🌡️ Warm Leads</div>
+            <div class="stat-value warm" id="warm-leads">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Avg CSAT Score</div>
+            <div class="stat-value emerald" id="avg-csat">--</div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Lead Score Distribution</h3>
+            <p>Visitor scoring breakdown by tier</p>
+            <canvas id="leadChart" height="200"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Conversations Over Time</h3>
+            <p>Daily chat volume this week</p>
+            <canvas id="volumeChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Question Heatmap -->
+    <div class="heatmap-section">
+        <h2>🔥 Most Asked Questions</h2>
+        <div id="heatmap-rows">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Hot Leads Table -->
+    <div class="heatmap-section">
+        <h2>🎯 Lead Intelligence</h2>
+        <table class="leads-table">
+            <thead>
+                <tr>
+                    <th>Session</th>
+                    <th>Score</th>
+                    <th>Tier</th>
+                    <th>Signals</th>
+                    <th>Time on Page</th>
+                    <th>Messages</th>
+                </tr>
+            </thead>
+            <tbody id="leads-tbody"><!-- Populated by JS --></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:8080/api/v1";
+        const token = localStorage.getItem('authToken');
+
+        // ---- Mock Data (replace with real API calls when backend is live) ----
+        const mockQuestions = [
+            { q: "Feature batao / Tell me about features", count: 248 },
+            { q: "Price kya hai / What is the pricing?", count: 201 },
+            { q: "Kaise add karun / How to integrate?", count: 187 },
+            { q: "Enterprise plan ke baare mein batao", count: 134 },
+            { q: "CRM Integration setup", count: 98 },
+            { q: "Hindi/Hinglish support karta hai?", count: 76 },
+            { q: "Free trial kitne din ka hai?", count: 65 },
+        ];
+
+        const mockLeads = [
+            { session: "sess_abc123", score: 87, tier: "HOT", signals: "Pricing + Enterprise + 8 msgs", time: "12m 30s", msgs: 8 },
+            { session: "sess_def456", score: 71, tier: "HOT", signals: "Pricing + 6 msgs", time: "9m 15s", msgs: 6 },
+            { session: "sess_ghi789", score: 52, tier: "WARM", signals: "5 msgs + 3 pages", time: "6m 45s", msgs: 5 },
+            { session: "sess_jkl012", score: 35, tier: "WARM", signals: "3 msgs + pricing page", time: "3m 20s", msgs: 3 },
+            { session: "sess_mno345", score: 12, tier: "COLD", signals: "1 msg", time: "0m 48s", msgs: 1 },
+        ];
+
+        // Stats
+        document.getElementById('total-convos').textContent = '1,247';
+        document.getElementById('hot-leads').textContent = mockLeads.filter(l => l.tier === 'HOT').length;
+        document.getElementById('warm-leads').textContent = mockLeads.filter(l => l.tier === 'WARM').length;
+        document.getElementById('avg-csat').textContent = '4.3 ⭐';
+
+        // Heatmap rows
+        const maxCount = mockQuestions[0].count;
+        const container = document.getElementById('heatmap-rows');
+        mockQuestions.forEach((q, i) => {
+            const pct = Math.round((q.count / maxCount) * 100);
+            container.innerHTML += `
+                <div class="heatmap-row">
+                    <div class="heatmap-rank">#${i + 1}</div>
+                    <div class="heatmap-question">${q.q}</div>
+                    <div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:${pct}%; opacity:${0.4 + pct / 150}"></div></div>
+                    <div class="heatmap-count">${q.count}x</div>
+                </div>`;
+        });
+
+        // Leads table
+        const tbody = document.getElementById('leads-tbody');
+        mockLeads.forEach(l => {
+            tbody.innerHTML += `
+                <tr>
+                    <td style="font-family:'JetBrains Mono';font-size:12px;color:var(--muted)">${l.session}</td>
+                    <td><strong>${l.score}</strong>/100</td>
+                    <td><span class="tier-badge tier-${l.tier}">${l.tier}</span></td>
+                    <td style="color:var(--muted);font-size:13px">${l.signals}</td>
+                    <td>${l.time}</td>
+                    <td>${l.msgs}</td>
+                </tr>`;
+        });
+
+        // Lead Score Donut Chart
+        new Chart(document.getElementById('leadChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['🔥 Hot', '🌡️ Warm', '❄️ Cold'],
+                datasets: [{ data: [2, 2, 1], backgroundColor: ['#FF6B6B', '#FFB347', '#2A2D3E'], borderWidth: 0 }]
+            },
+            options: { plugins: { legend: { labels: { color: '#8E91A1', font: { size: 13 } } } }, cutout: '70%' }
+        });
+
+        // Volume Line Chart
+        new Chart(document.getElementById('volumeChart'), {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Conversations',
+                    data: [45, 72, 68, 95, 110, 88, 71],
+                    borderColor: '#00F5A0', backgroundColor: 'rgba(0,245,160,0.05)',
+                    tension: 0.4, fill: true, pointBackgroundColor: '#00F5A0', pointRadius: 4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8E91A1' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8E91A1' } }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

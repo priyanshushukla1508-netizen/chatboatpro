@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBotPro — Choose Your Industry Template</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030407;
+            --surface: #0A0C12;
+            --emerald: #00F5A0;
+            --cyan: #00D1FF;
+            --text: #FFFFFF;
+            --muted: #8E91A1;
+            --border: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 42px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 16px;
+        }
+
+        .templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .template-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-card:hover,
+        .template-card.selected {
+            border-color: var(--emerald);
+            box-shadow: 0 0 40px rgba(0, 245, 160, 0.08);
+            transform: translateY(-4px);
+        }
+
+        .template-card.selected::after {
+            content: "✓ Selected";
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 245, 160, 0.15);
+            color: var(--emerald);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 245, 160, 0.3);
+        }
+
+        .template-emoji {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .template-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .template-desc {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .template-faqs {
+            list-style: none;
+        }
+
+        .template-faqs li {
+            color: #555;
+            font-size: 12px;
+            padding: 4px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .template-faqs li:last-child {
+            border: none;
+        }
+
+        .template-faqs li::before {
+            content: "→ ";
+            color: var(--emerald);
+        }
+
+        .btn-continue {
+            margin-top: 50px;
+            background: var(--emerald);
+            color: #000;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .btn-continue.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .btn-continue:hover {
+            box-shadow: 0 0 40px rgba(0, 245, 160, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pick Your Industry Template</h1>
+    <p class="subtitle">Your bot comes pre-trained with industry-specific FAQs. Ready in 30 seconds.</p>
+
+    <div class="templates">
+        <div class="template-card" data-industry="clinic" onclick="selectTemplate(this)">
+            <div class="template-emoji">🏥</div>
+            <div class="template-name">Clinic / Hospital</div>
+            <div class="template-desc">Book appointments, share doctor schedules, and handle common medical queries
+                automatically.</div>
+            <ul class="template-faqs">
+                <li>How do I book an appointment?</li>
+                <li>What are your OPD timings?</li>
+                <li>Do you accept insurance?</li>
+                <li>Which specialties are available?</li>
+            </ul>
+        </div>
+
+        <div class="template-card" data-industry="realestate" onclick="selectTemplate(this)">
+            <div class="template-emoji">🏠</div>
+            <div class="template-name">Real Estate</div>
+            <div class="template-desc">Showcase properties, schedule site visits, and qualify leads automatically 24/7.
+            </div>
+            <ul class="template-faqs">
+                <li>What properties are available?</li>
+                <li>What is the price range?</li>
+                <li>Can I schedule a site visit?</li>
+                <li>Are there home loan options?</li>
+            </ul>
+        </div>
+
+        <div class="template-card" data-industry="ecommerce" onclick="selectTemplate(this)">
+            <div class="template-emoji">👗</div>
+            <div class="template-name">Fashion / E-commerce</div>
+            <div class="template-desc">Handle orders, returns, sizing queries and product recommendations automatically.
+            </div>
+            <ul class="template-faqs">
+                <li>Where is my order?</li>
+                <li>How do I return a product?</li>
+                <li>What sizes are available?</li>
+                <li>Do you offer COD?</li>
+            </ul>
+        </div>
+
+        <div class="template-card" data-industry="edtech" onclick="selectTemplate(this)">
+            <div class="template-emoji">🏫</div>
+            <div class="template-name">EdTech / Education</div>
+            <div class="template-desc">Answer course queries, demo scheduling, and fee structure questions instantly.
+            </div>
+            <ul class="template-faqs">
+                <li>What courses do you offer?</li>
+                <li>What is the fee structure?</li>
+                <li>Is there a free demo class?</li>
+                <li>Do you provide certificates?</li>
+            </ul>
+        </div>
+
+        <div class="template-card" data-industry="restaurant" onclick="selectTemplate(this)">
+            <div class="template-emoji">🍕</div>
+            <div class="template-name">Restaurant / Food</div>
+            <div class="template-desc">Share menu, take reservations, and answer delivery/timing queries around the
+                clock.</div>
+            <ul class="template-faqs">
+                <li>What is today's special?</li>
+                <li>Can I book a table?</li>
+                <li>What are your timings?</li>
+                <li>Do you offer home delivery?</li>
+            </ul>
+        </div>
+    </div>
+
+    <button class="btn-continue" id="continueBtn" onclick="proceed()">Continue with this Template →</button>
+
+    <script>
+        let selectedIndustry = null;
+
+        function selectTemplate(card) {
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedIndustry = card.dataset.industry;
+            document.getElementById('continueBtn').classList.add('visible');
+        }
+
+        function proceed() {
+            if (!selectedIndustry) return;
+            // Store and redirect to register
+            localStorage.setItem('selectedTemplate', selectedIndustry);
+            window.location.href = 'register.html?template=' + selectedIndustry;
+        }
+    </script>
+</body>
+
+</html>

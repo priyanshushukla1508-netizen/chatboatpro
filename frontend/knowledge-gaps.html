@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBotPro — Knowledge Gap Detector</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030407;
+            --surface: #0A0C12;
+            --emerald: #00F5A0;
+            --text: #FFF;
+            --muted: #8E91A1;
+            --border: rgba(255, 255, 255, 0.06);
+            --red: #FF6B6B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk';
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .alert-banner {
+            background: rgba(255, 107, 107, 0.08);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-banner span {
+            font-size: 20px;
+        }
+
+        .alert-banner p {
+            color: var(--red);
+            font-size: 14px;
+        }
+
+        .alert-banner strong {
+            color: var(--text);
+        }
+
+        .gap-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 20px;
+            transition: 0.2s;
+        }
+
+        .gap-card:hover {
+            border-color: rgba(0, 245, 160, 0.2);
+        }
+
+        .gap-card.high {
+            border-left: 3px solid var(--red);
+        }
+
+        .gap-card.medium {
+            border-left: 3px solid #FFB347;
+        }
+
+        .gap-card.low {
+            border-left: 3px solid #555;
+        }
+
+        .gap-question {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .gap-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .gap-count {
+            font-family: 'JetBrains Mono';
+            font-size: 12px;
+            color: var(--red);
+        }
+
+        .gap-date {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .gap-badge {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--red);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .gap-badge.medium {
+            background: rgba(255, 179, 71, 0.1);
+            color: #FFB347;
+            border-color: rgba(255, 179, 71, 0.2);
+        }
+
+        .gap-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-train {
+            background: var(--emerald);
+            color: #000;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Space Grotesk';
+            transition: 0.2s;
+        }
+
+        .btn-train:hover {
+            box-shadow: 0 0 20px rgba(0, 245, 160, 0.3);
+        }
+
+        .btn-dismiss {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Train Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #0D0F18;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            width: 560px;
+        }
+
+        .modal h3 {
+            font-family: 'Space Grotesk';
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal label {
+            font-size: 13px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .modal textarea {
+            width: 100%;
+            background: #0A0C12;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 14px;
+            border-radius: 10px;
+            font-family: 'Inter';
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+        }
+
+        .modal textarea:focus {
+            border-color: rgba(0, 245, 160, 0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 24px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk';
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .stat-value.red {
+            color: var(--red);
+        }
+
+        .stat-value.emerald {
+            color: var(--emerald);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧠 Knowledge Gap Detector</h1>
+    <p class="subtitle">Questions your bot couldn't answer. Train it now to stop losing leads.</p>
+
+    <div class="alert-banner">
+        <span>🚨</span>
+        <p><strong>7 unresolved gaps this week</strong> — Your bot missed questions from <strong>89 visitors</strong>.
+            Train it now to recover lost leads.</p>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-label">Unanswered Questions</div>
+            <div class="stat-value red" id="total-gaps">7</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Affected Visitors</div>
+            <div class="stat-value red">89</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Resolved This Month</div>
+            <div class="stat-value emerald">14</div>
+        </div>
+    </div>
+
+    <div id="gaps-container">
+        <!-- Dynamically populated -->
+    </div>
+
+    <!-- Train Modal -->
+    <div class="modal-overlay" id="trainModal">
+        <div class="modal">
+            <h3>✏️ Train Bot on This Question</h3>
+            <p id="modal-question" style="color:var(--muted);font-size:14px;margin-bottom:20px;"></p>
+            <label>What should the bot answer?</label>
+            <textarea id="modal-answer" placeholder="Type the correct answer here..."></textarea>
+            <div class="modal-actions">
+                <button class="btn-dismiss" onclick="closeModal()">Cancel</button>
+                <button class="btn-train" onclick="submitTraining()">Save & Train ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data — replace with API call to /api/v1/dashboard/gaps/{websiteId}
+        const gaps = [
+            { id: 1, question: "EMI options available hain kya?", count: 34, priority: "high", date: "34 visitors this week" },
+            { id: 2, question: "Do you offer a money-back guarantee?", count: 22, priority: "high", date: "22 visitors this week" },
+            { id: 3, question: "Agency pricing kya hai? Resell kar sakte hain?", count: 18, priority: "medium", date: "18 visitors this week" },
+            { id: 4, question: "Data security aur GDPR compliance?", count: 12, priority: "medium", date: "12 visitors this week" },
+            { id: 5, question: "Mobile app hai kya?", count: 8, priority: "low", date: "8 visitors this week" },
+            { id: 6, question: "API documentation kahan milegi?", count: 5, priority: "low", date: "5 visitors this week" },
+            { id: 7, question: "Onboarding support milega kya?", count: 4, priority: "low", date: "4 visitors this week" },
+        ];
+
+        let activeGapId = null;
+
+        function renderGaps() {
+            const container = document.getElementById('gaps-container');
+            container.innerHTML = gaps.map(g => `
+                <div class="gap-card ${g.priority}" id="gap-${g.id}">
+                    <div>
+                        <div class="gap-question">"${g.question}"</div>
+                        <div class="gap-meta">
+                            <span class="gap-count">🔴 ${g.count} times asked</span>
+                            <span class="gap-date">${g.date}</span>
+                            ${g.priority === 'high' ? '<span class="gap-badge">High Priority</span>' : g.priority === 'medium' ? '<span class="gap-badge medium">Medium</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="gap-actions">
+                        <button class="btn-train" onclick="openModal(${g.id}, '${g.question.replace(/'/g, "\\'")}')">Train Bot ✏️</button>
+                        <button class="btn-dismiss" onclick="dismissGap(${g.id})">Dismiss</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(id, question) {
+            activeGapId = id;
+            document.getElementById('modal-question').textContent = `"${question}"`;
+            document.getElementById('modal-answer').value = '';
+            document.getElementById('trainModal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('trainModal').classList.remove('open');
+        }
+
+        function submitTraining() {
+            const answer = document.getElementById('modal-answer').value.trim();
+            if (!answer) return alert('Please enter an answer first!');
+            // In production: POST to /api/v1/dashboard/gaps/{id}/resolve
+            const card = document.getElementById(`gap-${activeGapId}`);
+            if (card) {
+                card.style.opacity = '0.3';
+                card.innerHTML += '<div style="color:#00F5A0;font-size:12px;margin-top:8px">✓ Trained successfully!</div>';
+                setTimeout(() => card.remove(), 1000);
+            }
+            closeModal();
+        }
+
+        function dismissGap(id) {
+            const card = document.getElementById(`gap-${id}`);
+            if (card) card.remove();
+        }
+
+        renderGaps();
+    </script>
+</body>
+
+</html>

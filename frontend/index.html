@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBotPro — Cyber-Minimalist AI Support</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030407;
+            --surface: #0A0C12;
+            --surface-accent: #11141D;
+            --emerald: #00F5A0;
+            --cyan: #00D1FF;
+            --text: #FFFFFF;
+            --text-muted: #8E91A1;
+            --border: rgba(255, 255, 255, 0.06);
+            --glow: rgba(0, 245, 160, 0.15);
+            --hologram: linear-gradient(135deg, var(--emerald) 0%, var(--cyan) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            letter-spacing: -0.01em;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Navigation - Cyber Minimalist */
+        nav {
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(3, 4, 7, 0.6);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            font-family: 'Space Grotesk';
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--hologram);
+            box-shadow: 0 0 15px var(--emerald);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--emerald);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: var(--bg);
+            border: 1px solid var(--text);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--text);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-emerald {
+            background: rgba(0, 245, 160, 0.1);
+            color: var(--emerald);
+            border: 1px solid rgba(0, 245, 160, 0.3);
+        }
+
+        .btn-emerald:hover {
+            background: var(--emerald);
+            color: var(--bg);
+            box-shadow: 0 0 40px var(--glow);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding-top: 100px;
+        }
+
+        .hero-tag {
+            font-family: 'JetBrains Mono';
+            font-size: 12px;
+            color: var(--emerald);
+            background: rgba(0, 245, 160, 0.05);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 245, 160, 0.1);
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .hero h1 {
+            font-size: 84px;
+            line-height: 0.95;
+            margin-bottom: 32px;
+            max-width: 1000px;
+        }
+
+        .hero h1 span {
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 48px;
+        }
+
+        /* Centerpiece Visualization */
+        .viz-container {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .ai-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: pulse 8s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        /* Bento Grid */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 350px);
+            gap: 20px;
+            padding: 100px 0;
+        }
+
+        .bento-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.3s;
+        }
+
+        .bento-item:hover {
+            border-color: rgba(0, 245, 160, 0.4);
+            box-shadow: 0 0 50px rgba(0, 245, 160, 0.05);
+        }
+
+        .bento-1 {
+            grid-column: span 2;
+            grid-row: span 1;
+        }
+
+        /* Large Hero Card */
+        .bento-2 {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .bento-3 {
+            grid-column: span 1;
+            grid-row: span 2;
+            background: linear-gradient(to bottom, var(--surface), var(--surface-accent));
+        }
+
+        /* Tall Vertical Card */
+        .bento-4 {
+            grid-column: span 2;
+            grid-row: span 1;
+        }
+
+        .bento-small {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .bento-item h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .bento-item p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .bento-item .icon {
+            font-size: 32px;
+            margin-bottom: 24px;
+            color: var(--emerald);
+        }
+
+        /* Terminal Display */
+        .terminal {
+            background: #000;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'JetBrains Mono';
+            font-size: 13px;
+            color: #aaa;
+            border: 1px solid var(--border);
+            margin-top: 30px;
+        }
+
+        .terminal .line {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .terminal .line span {
+            color: var(--emerald);
+        }
+
+        /* Pricing - Simplified & Premium */
+        .pricing-section {
+            padding: 150px 0;
+            text-align: center;
+        }
+
+        .pricing-v2 {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 60px;
+            align-items: stretch;
+        }
+
+        .price-v2-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px;
+            width: 380px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .price-v2-card.pro {
+            border-color: var(--emerald);
+            border-width: 1px;
+            box-shadow: 0 0 50px rgba(0, 245, 160, 0.03);
+        }
+
+        .price-badge {
+            font-family: 'JetBrains Mono';
+            font-size: 11px;
+            color: var(--emerald);
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .price-amount {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .price-amount span {
+            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .price-features-v2 {
+            list-style: none;
+            margin: 40px 0;
+            flex-grow: 1;
+        }
+
+        .price-features-v2 li {
+            margin-bottom: 18px;
+            color: var(--text-muted);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-features-v2 li::before {
+            content: "●";
+            color: var(--emerald);
+            font-size: 10px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+            background: #000;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr repeat(3, 1fr);
+            gap: 80px;
+        }
+
+        .footer-col h4 {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            letter-spacing: 0.1em;
+        }
+
+        .footer-col a {
+            display: block;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--text);
+        }
+
+        /* Utility */
+        .glow-text {
+            background: var(--hologram);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        [data-aos] {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        [data-aos].aos-animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--emerald);
+        }
+
+        @media (max-width: 1100px) {
+            .bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+            }
+
+            .pricing-v2 {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero h1 {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viz-container">
+        <div class="ai-core"></div>
+        <img src="ai_hologram_core.png"
+            style="position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); width: 1000px; mix-blend-mode: screen; opacity: 0.8;">
+    </div>
+
+    <nav>
+        <div class="container" style="display:flex; justify-content: space-between; align-items: center;">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                ChatBotPro
+            </div>
+            <div class="nav-links">
+                <a href="#intelligence">Intelligence</a>
+                <a href="#training">Training</a>
+                <a href="#pricing">Pricing</a>
+                <a href="login.html">Login</a>
+                <a href="register.html" class="btn btn-primary">Start Engineering</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Intense Hero Section -->
+        <section class="hero container">
+            <div class="hero-tag" data-aos>AI Infrastructure for the Modern Support Team</div>
+            <h1 data-aos style="font-size: 72px;">Deploy Intelligence. <span>Answer Effortlessly.</span></h1>
+            <p data-aos>Connect a deep-learning support brain to any website in 60 seconds.</p>
+            <div class="cta-wrap" data-aos style="display:flex; gap: 16px;">
+                <a href="#" id="live-demo-btn" class="btn btn-emerald" style="padding: 16px 32px;">💬 Try Live Demo</a>
+                <a href="register.html" class="btn btn-primary"
+                    style="padding: 16px 32px; background: rgba(255,255,255,0.05); color: white;">Get Started</a>
+            </div>
+        </section>
+
+        <!-- Feature Architecture -->
+        <section id="intelligence" class="container" style="padding-bottom: 100px;">
+            <div style="text-align: center; margin-bottom: 80px;" data-aos>
+                <div class="hero-tag">Capabilities</div>
+                <h2 style="font-size: 42px;">Everything you need to scale support.</h2>
+            </div>
+
+            <div class="bento-grid" style="grid-template-rows: auto; gap: 24px;">
+                <!-- RAG -->
+                <div class="bento-item" style="grid-column: span 2;" data-aos>
+                    <div class="icon">🧠</div>
+                    <h3>RAG Knowledge Base</h3>
+                    <p>Train your AI by uploading PDF or TXT documents. Our semantic search engine embeds your data so
+                        the bot answers using real company policies.</p>
+                </div>
+
+                <!-- Human Handoff -->
+                <div class="bento-item" style="grid-column: span 2;" data-aos>
+                    <div class="icon">�</div>
+                    <h3>Human Takeover</h3>
+                    <p>When the AI detects a high-value lead or a complex issue, it instantly alerts your dashboard for
+                        a seamless human-to-human transition.</p>
+                </div>
+
+                <!-- Streaming -->
+                <div class="bento-item" style="grid-column: span 4;" data-aos>
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <div style="max-width: 50%;">
+                            <div class="icon">⚡</div>
+                            <h3>Ultra-Fast Streaming</h3>
+                            <p>Powered by Groq LPU™ inference, responses are streamed word-by-word just like ChatGPT,
+                                providing a natural, low-latency experience.</p>
+                        </div>
+                        <div class="terminal" style="width: 40%; margin: 0;">
+                            <div class="line"><span>AI:</span> Hello! How...</div>
+                            <div class="line"><span>AI:</span> ...can I assist?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deployment Steps -->
+        <section id="training" class="container" style="padding: 150px 0; border-top: 1px solid var(--border);">
+            <div style="text-align: center; margin-bottom: 100px;" data-aos>
+                <div class="hero-tag">Deployment</div>
+                <h2 style="font-size: 42px;">Up and running in 3 steps.</h2>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 60px; text-align: center;" data-aos>
+                <div>
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(0, 245, 160, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; color: var(--emerald); font-weight: 800; border: 1px solid var(--emerald);">
+                        1</div>
+                    <h3>Register Site</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 15px;">Add your website URL to the
+                        dashboard and customize your bot's name and styling.</p>
+                </div>
+                <div>
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(0, 245, 160, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; color: var(--emerald); font-weight: 800; border: 1px solid var(--emerald);">
+                        2</div>
+                    <h3>Upload Data</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 15px;">Drag & drop your FAQs or PDF
+                        manuals. The AI indexes your documents in seconds.</p>
+                </div>
+                <div>
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(0, 245, 160, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; color: var(--emerald); font-weight: 800; border: 1px solid var(--emerald);">
+                        3</div>
+                    <h3>Embed Script</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 15px;">Copy the 2-line integration
+                        script and paste it into your footer. You're now live.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Widget Preview Mockup -->
+        <section class="container" style="padding: 100px 0; text-align: center;">
+            <div class="hero-tag" data-aos>Visual Interface</div>
+            <h2 style="font-size: 32px; margin-bottom: 60px;" data-aos>A widget that feels like your brand.</h2>
+
+            <div style="max-width: 800px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 40px 100px rgba(0,0,0,0.5); overflow: hidden;"
+                data-aos>
+                <div
+                    style="padding: 15px 25px; background: var(--surface-accent); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #FF5F56;"></div>
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #FFBD2E;"></div>
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #27C93F;"></div>
+                    <div style="margin-left: 20px; font-size: 11px; color: var(--text-muted);">Preview · ChatBotPro
+                        Widget</div>
+                </div>
+                <div
+                    style="padding: 40px; display: flex; gap: 30px; align-items: flex-end; justify-content: flex-end; background: radial-gradient(circle at top left, rgba(0,245,160,0.05), transparent);">
+                    <!-- Chat Bubble -->
+                    <div
+                        style="background: var(--surface-accent); border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px 12px 0 12px; max-width: 60%; text-align: left; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                        Can you explain the refund policy for the Enterprise plan?
+                    </div>
+                    <div style="width: 32px; height: 32px; background: #222; border-radius: 50%; flex-shrink: 0;"></div>
+                </div>
+                <div
+                    style="padding: 0 40px 40px; display: flex; gap: 30px; align-items: flex-end; justify-content: flex-start;">
+                    <div
+                        style="width: 32px; height: 32px; background: var(--hologram); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 15px var(--emerald);">
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px 12px 12px 0; max-width: 70%; text-align: left; font-size: 14px;">
+                        <span style="color: var(--emerald); font-weight: 600;">AI Support:</span> Of course! For the
+                        Enterprise plan, we offer a 30-day "no questions asked" full refund policy. You can trigger this
+                        directly from your billing dashboard.
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="hero-tag" data-aos>Investment Tiers</div>
+        <h2 data-aos style="font-size: 48px; margin-bottom: 16px;">Scale as You Grow.</h2>
+        <p data-aos style="max-width: 500px; margin: 0 auto; color: var(--text-muted);">Predictable per-message
+            billing designed for ambitious Indian startups.</p>
+
+        <div class="pricing-v2">
+            <!-- Trial -->
+            <div class="price-v2-card" data-aos>
+                <div class="price-badge">Early Access</div>
+                <div class="price-amount">₹0<span>/2 Days</span></div>
+                <ul class="price-features-v2">
+                    <li>1 Website Integration</li>
+                    <li>Full Pro Feature Set</li>
+                    <li>High Speed (150 msg limit)</li>
+                    <li>Identity Verification Required</li>
+                </ul>
+                <a href="register.html" class="btn btn-primary" style="width: 100%;">Initiate Trial</a>
+            </div>
+
+            <!-- Pro -->
+            <div class="price-v2-card pro" data-aos>
+                <div class="price-badge" style="color: var(--emerald)">Most Deployed</div>
+                <div class="price-amount">₹19,999<span>/mo</span></div>
+                <ul class="price-features-v2">
+                    <li>1 Website Integration</li>
+                    <li>10,000 Messages / mo</li>
+                    <li>Smart Escalation Logic</li>
+                    <li>Proactive AI Triggers</li>
+                    <li>Lead Qualification Flow</li>
+                </ul>
+                <a href="register.html" class="btn btn-emerald" style="width: 100%;">Get Pro Access</a>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="price-v2-card" data-aos>
+                <div class="price-badge">High Scale</div>
+                <div class="price-amount">Custom<span>/mo</span></div>
+                <ul class="price-features-v2">
+                    <li>1 Website Integration</li>
+                    <li>Unlimited Infrastructure</li>
+                    <li>Custom Model Training</li>
+                    <li>White-label Deployment</li>
+                    <li>Dedicated Account Engineer</li>
+                </ul>
+                <a href="mailto:sales@chatbotpro.in" class="btn btn-primary" style="width: 100%;">Negotiate Deal</a>
+            </div>
+        </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-col" style="grid-column: span 1.5;">
+                <div class="logo" style="margin-bottom: 24px;">
+                    <div class="logo-icon"></div>
+                    ChatBotPro
+                </div>
+                <p style="color:#666; font-size: 14px; max-width: 300px; line-height: 1.6;">
+                    The next-generation intelligence infrastructure for the Indian digital economy.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Engine</h4>
+                <a href="#">RAG Architecture</a>
+                <a href="#">Crawler Specs</a>
+                <a href="#">Security Protocol</a>
+            </div>
+            <div class="footer-col">
+                <h4>System</h4>
+                <a href="#">API Documentation</a>
+                <a href="#">Regional Support</a>
+                <a href="#">Uptime Status</a>
+            </div>
+            <div class="footer-col">
+                <h4>Agency</h4>
+                <a href="#">White-label</a>
+                <a href="#">Partner Program</a>
+                <a href="#">Support Hub</a>
+            </div>
+        </div>
+        <div class="container"
+            style="margin-top: 80px; padding-top: 40px; border-top: 1px solid var(--border); color: #444; font-size: 12px; display: flex; justify-content: space-between;">
+            <div>&copy; 2026 ChatBotPro Intelligence Systems.</div>
+            <div>Built for the Bharat Renaissance 🇮🇳</div>
+        </div>
+    </footer>
+
+    <!-- AOS Script -->
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aos-animate');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
+
+        // Terminal Typing Animation Demo
+        const terminalLines = document.querySelectorAll('.terminal .line');
+        // Simple mock effect
+        setInterval(() => {
+            terminalLines.forEach(l => l.style.opacity = Math.random() > 0.05 ? 1 : 0.5);
+        }, 3000);
+    </script>
+    <script>
+        // attach listener to demo button once DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('live-demo-btn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (typeof window.openChatBotPro === 'function') {
+                        window.openChatBotPro();
+                    } else {
+                        console.error('ChatBotPro widget not loaded yet');
+                    }
+                });
+            }
+        });
+    </script>
+    <!-- Live Chat Widget Demo -->
+    <script src="widget/widget.js?v=2" data-bot-id="demo-token"></script>
+</body>
+
+</html>
