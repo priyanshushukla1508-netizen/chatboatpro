@@ -41,6 +41,10 @@ public class Website {
     private String plan = "TRIAL";
 
     private boolean active;
+
+    @Column(columnDefinition = "TEXT")
+    private String scrapedContent;
+
     private LocalDateTime lastCrawledAt;
     private LocalDateTime createdAt;
 
