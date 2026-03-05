@@ -2,7 +2,7 @@
     const script = document.currentScript;
     const botToken = script.getAttribute('data-bot-id');
     // Change this URL to your LIVE Render backend URL after deployment
-    const API_BASE = "https://YOUR-BACKEND-URL.onrender.com/api/v1/widget";
+    const API_BASE = "https://chatboatpro1.onrender.com/api/v1/widget";
     let sessionId = localStorage.getItem('chat_session_id') || Math.random().toString(36).substring(7);
     localStorage.setItem('chat_session_id', sessionId);
 
