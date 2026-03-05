@@ -925,7 +925,7 @@
             const select = document.getElementById('embed-site-select');
             const token = select.options[select.selectedIndex].getAttribute('data-token');
             document.getElementById('embed-code').textContent =
-                `<script src="http://localhost:3000/widget/widget.js" data-bot-id="${token}"><\/script>`;
+                `<script src="https://chatboatpro1.onrender.com/widget/widget.js" data-bot-id="${token}"><\/script>`;
         }
 
         document.getElementById('site-form').onsubmit = async (e) => {
