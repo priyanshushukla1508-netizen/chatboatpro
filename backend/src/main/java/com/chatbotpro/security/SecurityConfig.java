@@ -47,9 +47,19 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Allow all for the widget
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+        
+        // Allow all origins, or specifically localhost for local development
+        configuration.setAllowedOriginPatterns(List.of("*")); 
+        
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+        
+        // Allow ALL headers so the browser's fetch API doesn't fail preflight checks easily
+        configuration.setAllowedHeaders(List.of("*"));
+        
+        configuration.setAllowCredentials(false); // Must be false if origin is *
+        
+        configuration.setExposedHeaders(List.of("Authorization")); // Important if frontend needs to read token from header
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
